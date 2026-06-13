@@ -11,22 +11,10 @@ collection = {"1": low, "2": mid, "3": high}
 default = Player(100.00, 0.00, 0.00)
 
 
-def list_scratchers():
-
-    index = 1
-    print("=" * 48)
-    for scratcher in collection:
-        print(
-            f"ID: {index} | Name: {collection[scratcher].name} | Price: ${collection[scratcher].price}"
-        )
-        index += 1
-    print("=" * 48)
-
-
 def select_scratcher():
 
     print(
-        f"Current Balance: ${default.wallet:.2f}. You have enough to afford the cheapest card!"
+        f"\nCurrent Balance: ${default.wallet:.2f}. You have enough to afford the cheapest card!\n"
     )
 
     selection_valid = False
@@ -34,6 +22,17 @@ def select_scratcher():
 
     while not selection_valid:
         try:
+            # Loop through scratcher collection and list each option
+            index = 1
+            print("=" * 48)
+            for scratcher in collection:
+                print(
+                    f"ID: {index} | Name: {collection[scratcher].name} | Price: ${collection[scratcher].price}"
+                )
+                index += 1
+            print("=" * 48)
+
+            # Allow user to select scratcher
             choice = input("Please select a scratcher via ID (q to quit): ")
 
             if choice.lower() == "q":
@@ -46,39 +45,50 @@ def select_scratcher():
                 purchase_valid = False
 
                 while not purchase_valid:
-                    card = collection[choice].name
-                    price = collection[choice].price
+                    try:
+                        card = collection[choice].name
+                        price = collection[choice].price
 
-                    amount = input(
-                        f"How many {card}s would you like to buy? ({default.wallet // price:.0f} max | c to cancel): "
-                    )
+                        # Verify at least one unit of card selected can be purchased
+                        if price > default.wallet:
+                            print("You cannot afford this!")
+                            break
 
-                    if amount == "c":
-                        break
+                        amount = input(
+                            f"How many {card}s would you like to buy? ({default.wallet // price:.0f} max | c to cancel): "
+                        )
 
-                    if not amount.isnumeric or int(amount) < 0:
-                        print("Please enter a valid amount!")
-                        continue
+                        if amount == "c":
+                            break
 
-                    amount = int(amount)
+                        if not amount.isnumeric or int(amount) < 0:
+                            print("Please enter a valid amount!")
+                            continue
 
-                    if (amount * price) > default.wallet:
-                        print("You cannot afford this!")
-                        continue
+                        amount = int(amount)
 
-                    cost = amount * price
-                    default.wallet -= cost
-                    default.spent += cost
+                        if (amount * price) > default.wallet:
+                            print("You cannot afford this!")
+                            continue
 
-                    print(
-                        f"\nYou purchased {amount} card(s) for ${cost:.2f} leaving behind ${default.wallet:.2f}"
-                    )
-                    purchase_valid = True
-                    selection_valid = True
-                    earnings = collection[choice].play(amount, default.wallet)
-                    default.wallet += earnings
-                    default.earned += earnings
+                        cost = amount * price
+                        default.wallet -= cost
+                        default.spent += cost
 
+                        print(
+                            f"\nYou purchased {amount} card(s) for ${cost:.2f} leaving behind ${default.wallet:.2f}"
+                        )
+                        purchase_valid = True
+                        selection_valid = True
+                        earnings = collection[choice].play(amount, default.wallet)
+                        default.wallet += earnings
+                        default.earned += earnings
+                    except ValueError:
+                        print("Please enter a valid value")
+
+                    except KeyboardInterrupt:
+                        print("\nQuitting..")
+                        exit()
         except ValueError:
             print("Please enter a valid value!")
 
@@ -97,8 +107,6 @@ def menu():
                 f"You spent a total of ${default.spent:.2f} and earned a total of ${default.earned:.2f}\n"
             )
             exit()
-        # List scratchers
-        list_scratchers()
         # Select and play scratcher(s)
         select_scratcher()
 
