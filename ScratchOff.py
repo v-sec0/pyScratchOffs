@@ -91,4 +91,4 @@ class ScratchOff:
 
         print(f"You earned ${earnings:.2f}!\n")
         sleep(5)
-        return float(earnings + cash)
+        return float(earnings)

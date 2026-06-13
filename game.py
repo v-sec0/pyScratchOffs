@@ -1,3 +1,4 @@
+from Player import Player
 from ScratchOff import ScratchOff
 
 # Define scratch-offs
@@ -6,15 +7,11 @@ mid = ScratchOff("Money Multiplier", 19.99, 500)
 high = ScratchOff("Uncle Sam Grand Slam", 49.99, 1000)
 collection = {"1": low, "2": mid, "3": high}
 
-# Game settings
-starting_balance = 1000
+# Define player settings
+default = Player(100.00, 0, 0)
 
 
-def list_scratchers(cash):
-
-    if cash < collection["1"].price:
-        print(f"\nYou went broke! You were left with ${cash:.2f}!")
-        exit()
+def list_scratchers():
 
     index = 1
     print("=" * 48)
@@ -26,9 +23,11 @@ def list_scratchers(cash):
     print("=" * 48)
 
 
-def select_scratcher(cash):
+def select_scratcher():
 
-    print(f"Current Balance: ${cash:.2f}. You have enough to afford the cheapest card!")
+    print(
+        f"Current Balance: ${default.wallet:.2f}. You have enough to afford the cheapest card!"
+    )
 
     selection_valid = False
     earnings = 0
@@ -51,7 +50,7 @@ def select_scratcher(cash):
                     price = collection[choice].price
 
                     amount = input(
-                        f"How many {card}s would you like to buy? ({cash // price:.0f} max | c to cancel): "
+                        f"How many {card}s would you like to buy? ({default.wallet // price:.0f} max | c to cancel): "
                     )
 
                     if amount == "c":
@@ -63,19 +62,20 @@ def select_scratcher(cash):
 
                     amount = int(amount)
 
-                    if (amount * price) > cash:
+                    if (amount * price) > default.wallet:
                         print("You cannot afford this!")
                         continue
 
                     cost = amount * price
-                    remaining_balance = cash - cost
+                    default.wallet -= cost
 
                     print(
-                        f"\nYou purchased {amount} card(s) for ${cost:.2f} leaving behind ${remaining_balance:.2f}"
+                        f"\nYou purchased {amount} card(s) for ${cost:.2f} leaving behind ${default.wallet:.2f}"
                     )
                     purchase_valid = True
                     selection_valid = True
-                    earnings = collection[choice].play(amount, remaining_balance)
+                    earnings = collection[choice].play(amount, default.wallet)
+                    default.wallet += earnings
 
         except ValueError:
             print("Please enter a valid value!")
@@ -84,17 +84,21 @@ def select_scratcher(cash):
             print("\nQuitting...")
             exit()
 
-    return earnings
 
+def menu():
 
-def menu(cash):
-    list_scratchers(cash)
-    earnings = select_scratcher(cash)
-    menu(earnings)
+    while True:
+        # If balance is less than the cost of the cheapest card, end game.
+        if default.wallet < collection["1"].price:
+            print(f"\nYou went broke! You were left with ${default.wallet:.2f}!")
+            exit()
+        # List cards
+        list_scratchers()
+        select_scratcher()
 
 
 def main():
-    menu(starting_balance)
+    menu()
 
 
 main()
