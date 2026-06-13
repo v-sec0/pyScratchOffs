@@ -8,7 +8,7 @@ high = ScratchOff("Uncle Sam Grand Slam", 49.99, 1000)
 collection = {"1": low, "2": mid, "3": high}
 
 # Define player settings
-default = Player(100.00, 0, 0)
+default = Player(100.00, 0.00, 0.00)
 
 
 def list_scratchers():
@@ -68,6 +68,7 @@ def select_scratcher():
 
                     cost = amount * price
                     default.wallet -= cost
+                    default.spent += cost
 
                     print(
                         f"\nYou purchased {amount} card(s) for ${cost:.2f} leaving behind ${default.wallet:.2f}"
@@ -76,6 +77,7 @@ def select_scratcher():
                     selection_valid = True
                     earnings = collection[choice].play(amount, default.wallet)
                     default.wallet += earnings
+                    default.earned += earnings
 
         except ValueError:
             print("Please enter a valid value!")
@@ -91,9 +93,13 @@ def menu():
         # If balance is less than the cost of the cheapest card, end game.
         if default.wallet < collection["1"].price:
             print(f"\nYou went broke! You were left with ${default.wallet:.2f}!")
+            print(
+                f"You spent a total of ${default.spent:.2f} and earned a total of ${default.earned:.2f}\n"
+            )
             exit()
-        # List cards
+        # List scratchers
         list_scratchers()
+        # Select and play scratcher(s)
         select_scratcher()
 
 
