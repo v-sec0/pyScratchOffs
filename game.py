@@ -7,15 +7,11 @@ mid = ScratchOff("Money Multiplier", 19.99, 500)
 high = ScratchOff("Uncle Sam Grand Slam", 49.99, 1000)
 collection = {"1": low, "2": mid, "3": high}
 
-# Define player settings
+# Define player class object
 default = Player(100.00, 0.00, 0.00)
 
 
 def select_scratcher():
-
-    print(
-        f"\nCurrent Balance: ${default.wallet:.2f}. You have enough to afford the cheapest card!\n"
-    )
 
     selection_valid = False
     earnings = 0
@@ -99,7 +95,8 @@ def select_scratcher():
 
 def menu():
 
-    while True:
+    cashout = False
+    while not cashout:
         # If balance is less than the cost of the cheapest card, end game.
         if default.wallet < collection["1"].price:
             print(f"\nYou went broke! You were left with ${default.wallet:.2f}!")
@@ -109,6 +106,38 @@ def menu():
             exit()
         # Select and play scratcher(s)
         select_scratcher()
+
+        # Check if player would like to cashout
+        try:
+            print(
+                f"\nCurrent Balance: ${default.wallet:.2f}. You have enough to afford the cheapest card!\n"
+            )
+
+            valid_cashout_opt = False
+            while not valid_cashout_opt:
+                cashout_opt = input("Would you like to cashout? (y/n): ")
+
+                if cashout_opt.lower() == "y":
+                    cashout = True
+                    valid_cashout_opt = True
+                elif cashout_opt.lower() == "n":
+                    cashout = False
+                    valid_cashout_opt = True
+                else:
+                    print("Invalid choice!")
+
+        except ValueError:
+            print("Since you're unable to decide, the game will continue.")
+            continue
+        except KeyboardInterrupt:
+            print("\nQuitting...")
+            exit()
+
+    print(f"\nYou cashed out with a balance of ${default.wallet:.2f}!")
+    print(
+        f"You spent a total of ${default.spent:.2f} and earned a total of ${default.earned:.2f}\n"
+    )
+    exit()
 
 
 def main():
